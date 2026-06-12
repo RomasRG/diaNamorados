@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Jogo da Memória - Corações 💕</title>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Quicksand', sans-serif;
+    background: linear-gradient(135deg, #ffd1e8, #ffe4f1, #fff0f5);
+  }
+  h1 {
+    color: #d6336c;
+    text-shadow: 1px 1px 2px #fff;
+    margin-bottom: 5px;
+  }
+  #status {
+    color: #b5396b;
+    margin-bottom: 15px;
+    font-weight: 700;
+  }
+  .board {
+    display: grid;
+    grid-template-columns: repeat(4, 80px);
+    grid-template-rows: repeat(4, 80px);
+    gap: 12px;
+  }
+  .card {
+    background: #fff;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(214, 51, 108, 0.2);
+    transition: transform 0.2s, background 0.2s;
+    user-select: none;
+  }
+  .card:hover {
+    transform: scale(1.05);
+  }
+  .card.flipped {
+    background: #ffeaf3;
+    transform: rotateY(360deg);
+  }
+  .card.matched {
+    background: #ffd6e8;
+    cursor: default;
+  }
+  button {
+    margin-top: 20px;
+    padding: 10px 24px;
+    border: none;
+    border-radius: 20px;
+    background: #ff6f9c;
+    color: #fff;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(214, 51, 108, 0.3);
+  }
+  button:hover {
+    background: #ff4f85;
+  }
+</style>
+</head>
+<body>
+  <h1>Jogo da Memória 💖</h1>
+  <div id="status">Encontre os pares de corações!</div>
+  <div class="board" id="board"></div>
+  <button onclick="startGame()">Reiniciar</button>
+
+<script>
+  const hearts = ['💙', '❤️', '💛', '💚', '💜', '🩵', '🖤', '🤍'];
+  const board = document.getElementById('board');
+  const status = document.getElementById('status');
+
+  let cards = [];
+  let flipped = [];
+  let matchedCount = 0;
+  let lock = false;
+
+  function shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  function startGame() {
+    board.innerHTML = '';
+    flipped = [];
+    matchedCount = 0;
+    lock = false;
+    status.textContent = 'Encontre os pares de corações!';
+
+    cards = shuffle([...hearts, ...hearts]);
+
+    cards.forEach((heart, index) => {
+      const card = document.createElement('div');
+      card.classList.add('card');
+      card.dataset.heart = heart;
+      card.dataset.index = index;
+      card.textContent = '🌸';
+      card.addEventListener('click', () => flipCard(card));
+      board.appendChild(card);
+    });
+  }
+
+  function flipCard(card) {
+    if (lock) return;
+    if (card.classList.contains('flipped') || card.classList.contains('matched')) return;
+
+    card.textContent = card.dataset.heart;
+    card.classList.add('flipped');
+    flipped.push(card);
+
+    if (flipped.length === 2) {
+      lock = true;
+      const [first, second] = flipped;
+
+      if (first.dataset.heart === second.dataset.heart) {
+        first.classList.add('matched');
+        second.classList.add('matched');
+        matchedCount += 2;
+        flipped = [];
+        lock = false;
+
+        if (matchedCount === cards.length) {
+          status.textContent = 'Parabéns! Você encontrou todos os pares! 🎉';
+          const messages = [
+            "Impressionante! Você é a pessoa incrível!",
+            "Uma vitória digna para alguém tão honrado",
+            "Admiro sua inteligência, combina com sua belza.",
+            "Que minha memória seja assim tão boa para me lembrar de alguém tão especial."
+          ];
+          const msg = messages[Math.floor(Math.random() * messages.length)];
+          setTimeout(() => alert(msg), 300);
+        }
+      } else {
+        setTimeout(() => {
+          first.textContent = '🌸';
+          second.textContent = '🌸';
+          first.classList.remove('flipped');
+          second.classList.remove('flipped');
+          flipped = [];
+          lock = false;
+        }, 800);
+      }
+    }
+  }
+
+  startGame();
+</script>
+</body>
+</html>
